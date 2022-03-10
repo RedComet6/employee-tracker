@@ -71,19 +71,15 @@ function handleChosen(chosen) {
             addRole();
             break;
         case "Add an employee":
+            addEmployee();
             break;
         case "Update an employee role":
+            updateEmployee();
             break;
         case "Quit":
             console.log("You have Quit\n\n");
             break;
     }
-
-    // if (chosen !== "Quit") {
-    //     setTimeout(() => {
-    //         init();
-    //     }, 1000);
-    // }
 }
 
 function viewAllDepartments() {
@@ -148,7 +144,7 @@ function addRole() {
         },
         {
             name: "newRoleDepartment",
-            message: "To which department number does this role belong?",
+            message: "To which department ID number does this role belong?",
             type: "number",
         },
     ];
@@ -160,6 +156,87 @@ function addRole() {
         });
 
         db.query("SELECT * FROM roles", (err, res) => {
+            console.log("\n");
+            console.table(res);
+            console.log("\n");
+            init();
+        });
+    });
+}
+
+function addEmployee() {
+    const questions = [
+        {
+            name: "newFirstName",
+            message: "What is the new employee's first name?",
+            type: "input",
+        },
+        {
+            name: "newLastName",
+            message: "What is the new employee's last name?",
+            type: "input",
+        },
+        {
+            name: "newRole",
+            message: "What is the new employee's role ID number?",
+            type: "number",
+        },
+        {
+            name: "hasManager",
+            message: "Does the new employee have a manager?",
+            type: "confirm",
+        },
+        {
+            name: "newManager",
+            message: "What is the employee ID of the new employee's manager?",
+            type: "number",
+            when: (answers) => answers.hasManager === true,
+        },
+    ];
+
+    inquirer.prompt(questions).then((answers) => {
+        if (answers.hasManager) {
+            db.query("INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [answers.newFirstName, answers.newLastName, answers.newRole, answers.newManager], function (err, row) {
+                console.log("Successfully added an employee!");
+                if (err) throw err;
+            });
+        } else {
+            db.query("INSERT INTO employees (first_name, last_name, role_id) VALUES (?, ?, ?)", [answers.newFirstName, answers.newLastName, answers.newRole], function (err, row) {
+                console.log("Successfully added an employee!");
+                if (err) throw err;
+            });
+        }
+
+        db.query("SELECT * FROM employees", (err, res) => {
+            console.log("\n");
+            console.table(res);
+            console.log("\n");
+            init();
+        });
+    });
+}
+
+function updateEmployee() {
+    const questions = [
+        {
+            name: "updatedEmployee",
+            message: "What is the ID number of the employee to be updated?",
+            type: "number",
+        },
+        {
+            name: "updatedRole",
+            message: "What will this employee's new role ID number be?",
+            type: "number",
+        },
+    ];
+
+    inquirer.prompt(questions).then((answers) => {
+        db.query("UPDATE employees SET role_id = ? WHERE id = ?", [answers.updatedRole, answers.updatedEmployee], function (err, row) {
+            console.log("Successfully updated an employee's role!");
+            if (err) throw err;
+        });
+
+        db.query("SELECT * FROM employees", (err, res) => {
             console.log("\n");
             console.table(res);
             console.log("\n");
