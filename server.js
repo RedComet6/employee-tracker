@@ -217,6 +217,12 @@ function addEmployee() {
 }
 
 function updateEmployee() {
+    db.query("SELECT * FROM employees", (err, res) => {
+        console.log("\n");
+        console.table(res);
+        console.log("\n");
+    });
+
     const questions = [
         {
             name: "updatedEmployee",
