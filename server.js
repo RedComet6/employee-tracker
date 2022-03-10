@@ -18,28 +18,12 @@ db.connect((err) => {
 });
 
 function init() {
-    // {
-    //     name: "choice",
-    //     message: "What would you like to do?",
-    //     type: "list",
-    //     choices: [
-    //         { name: "View all departments", value: "viewDepartments" },
-    //         { name: "View all roles", value: "viewRoles" },
-    //         { name: "View all employees", value: "viewEmployees" },
-    //         { name: "Add a department", value: "addDepartment" },
-    //         { name: "Add a role", value: "addRole" },
-    //         { name: "Add an employee", value: "addEmployee" },
-    //         { name: "Update an employee role", value: "updateEmployee" },
-    //         { name: "Quit", value: "quit" },
-    //     ],
-    // },
-
     const choice = {
         name: "choice",
         message: "What would you like to do?",
         type: "list",
-        choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "Quit"],
-        pageSize: 8,
+        choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "Delete a department", "Quit"],
+        pageSize: 11,
         loop: false,
     };
 
@@ -75,6 +59,9 @@ function handleChosen(chosen) {
             break;
         case "Update an employee role":
             updateEmployee();
+            break;
+        case "Delete a department":
+            deleteDepartment();
             break;
         case "Quit":
             console.log("You have Quit\n\n");
@@ -243,6 +230,36 @@ function updateEmployee() {
         });
 
         db.query("SELECT * FROM employees", (err, res) => {
+            console.log("\n");
+            console.table(res);
+            console.log("\n");
+            init();
+        });
+    });
+}
+
+function deleteDepartment() {
+    db.query("SELECT * FROM departments", (err, res) => {
+        console.log("\n");
+        console.table(res);
+        console.log("\n");
+    });
+
+    const question = [
+        {
+            name: "deletedDepartment",
+            message: "What is the ID number of the department to be deleted?",
+            type: "number",
+        },
+    ];
+
+    inquirer.prompt(question).then((answer) => {
+        db.query("DELETE FROM departments WHERE id = ?", answer.deletedDepartment, function (err, row) {
+            console.log("Successfully deleted a department!");
+            if (err) throw err;
+        });
+
+        db.query("SELECT * FROM departments", (err, res) => {
             console.log("\n");
             console.table(res);
             console.log("\n");
