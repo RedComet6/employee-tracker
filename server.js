@@ -22,7 +22,7 @@ function init() {
         name: "choice",
         message: "What would you like to do?",
         type: "list",
-        choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "Delete a department", "Quit"],
+        choices: ["View all departments", "View all roles", "View all employees", "Add a department", "Add a role", "Add an employee", "Update an employee role", "Delete a department", "Delete a role", "Delete an employee", "Quit"],
         pageSize: 11,
         loop: false,
     };
@@ -62,6 +62,12 @@ function handleChosen(chosen) {
             break;
         case "Delete a department":
             deleteDepartment();
+            break;
+        case "Delete a role":
+            deleteRole();
+            break;
+        case "Delete an employee":
+            deleteEmployee();
             break;
         case "Quit":
             console.log("You have Quit\n\n");
@@ -260,6 +266,66 @@ function deleteDepartment() {
         });
 
         db.query("SELECT * FROM departments", (err, res) => {
+            console.log("\n");
+            console.table(res);
+            console.log("\n");
+            init();
+        });
+    });
+}
+
+function deleteRole() {
+    db.query("SELECT * FROM roles", (err, res) => {
+        console.log("\n");
+        console.table(res);
+        console.log("\n");
+    });
+
+    const question = [
+        {
+            name: "deletedRole",
+            message: "What is the ID number of the role to be deleted?",
+            type: "number",
+        },
+    ];
+
+    inquirer.prompt(question).then((answer) => {
+        db.query("DELETE FROM roles WHERE id = ?", answer.deletedRole, function (err, row) {
+            console.log("Successfully deleted a role!");
+            if (err) throw err;
+        });
+
+        db.query("SELECT * FROM roles", (err, res) => {
+            console.log("\n");
+            console.table(res);
+            console.log("\n");
+            init();
+        });
+    });
+}
+
+function deleteEmployee() {
+    db.query("SELECT * FROM employees", (err, res) => {
+        console.log("\n");
+        console.table(res);
+        console.log("\n");
+    });
+
+    const question = [
+        {
+            name: "deletedEmployee",
+            message: "What is the ID number of the employee to be deleted?",
+            type: "number",
+        },
+    ];
+
+    inquirer.prompt(question).then((answer) => {
+        db.query("DELETE FROM employees WHERE id = ?", answer.deletedEmployee, function (err, row) {
+            console.log("Successfully deleted an employee!");
+            if (err) throw err;
+        });
+
+        db.query("SELECT * FROM employees", (err, res) => {
             console.log("\n");
             console.table(res);
             console.log("\n");
