@@ -302,87 +302,93 @@ function updateEmployee() {
 }
 
 function deleteDepartment() {
-    db.query("SELECT * FROM departments", (err, res) => {
-        console.log("\n");
-        console.table(res);
-        console.log("\n");
+    db.query("SELECT * FROM departments", function (err, res) {
+        const departments = res.map(({ id, name }) => ({
+            name: name,
+            value: id,
+        }));
+
+        inquirer
+            .prompt({
+                name: "id",
+                message: "Which department do you want to delete?",
+                type: "list",
+                choices: departments,
+            })
+            .then((department) => {
+                db.query("DELETE FROM departments WHERE id = ?", department.id, function (err, row) {
+                    if (err) throw err;
+                    console.log("Successfully deleted a department!");
+                });
+
+                db.query("SELECT * FROM departments", (err, res) => {
+                    console.log("\n");
+                    console.table(res);
+                    console.log("\n");
+                    init();
+                });
+            });
     });
-
-    inquirer
-        .prompt({
-            name: "deletedDepartment",
-            message: "What is the ID number of the department to be deleted?",
-            type: "number",
-        })
-        .then((answer) => {
-            db.query("DELETE FROM departments WHERE id = ?", answer.deletedDepartment, function (err, row) {
-                if (err) throw err;
-                console.log("Successfully deleted a department!");
-            });
-
-            db.query("SELECT * FROM departments", (err, res) => {
-                console.log("\n");
-                console.table(res);
-                console.log("\n");
-                init();
-            });
-        });
 }
 
 function deleteRole() {
-    db.query("SELECT * FROM roles", (err, res) => {
-        console.log("\n");
-        console.table(res);
-        console.log("\n");
+    db.query("SELECT * FROM roles", function (err, res) {
+        const roles = res.map(({ id, title }) => ({
+            name: title,
+            value: id,
+        }));
+
+        inquirer
+            .prompt({
+                name: "id",
+                message: "Which role would you like to delete?",
+                type: "list",
+                choices: roles,
+            })
+            .then((role) => {
+                db.query("DELETE FROM roles WHERE id = ?", role.id, function (err, row) {
+                    if (err) throw err;
+                    console.log("Successfully deleted a role!");
+                });
+
+                db.query("SELECT * FROM roles", (err, res) => {
+                    console.log("\n");
+                    console.table(res);
+                    console.log("\n");
+                    init();
+                });
+            });
     });
-
-    inquirer
-        .prompt({
-            name: "deletedRole",
-            message: "What is the ID number of the role to be deleted?",
-            type: "number",
-        })
-        .then((answer) => {
-            db.query("DELETE FROM roles WHERE id = ?", answer.deletedRole, function (err, row) {
-                if (err) throw err;
-                console.log("Successfully deleted a role!");
-            });
-
-            db.query("SELECT * FROM roles", (err, res) => {
-                console.log("\n");
-                console.table(res);
-                console.log("\n");
-                init();
-            });
-        });
 }
 
 function deleteEmployee() {
     db.query("SELECT * FROM employees", (err, res) => {
-        console.log("\n");
-        console.table(res);
-        console.log("\n");
+        const employees = res.map(({ id, last_name }) => ({
+            name: last_name,
+            value: id,
+        }));
+
+        inquirer
+            .prompt({
+                name: "id",
+                message: "Which employee would you like to delete?",
+                type: "list",
+                choices: employees,
+            })
+            .then((employee) => {
+                db.query("DELETE FROM employees WHERE id = ?", employee.id, function (err, row) {
+                    if (err) throw err;
+                    console.log("Successfully deleted an employee!");
+                });
+
+                db.query("SELECT * FROM employees", (err, res) => {
+                    console.log("\n");
+                    console.table(res);
+                    console.log("\n");
+                    init();
+                });
+            });
     });
-
-    inquirer
-        .prompt({
-            name: "deletedEmployee",
-            message: "What is the ID number of the employee to be deleted?",
-            type: "number",
-        })
-        .then((answer) => {
-            db.query("DELETE FROM employees WHERE id = ?", answer.deletedEmployee, function (err, row) {
-                if (err) throw err;
-                console.log("Successfully deleted an employee!");
-            });
-
-            db.query("SELECT * FROM employees", (err, res) => {
-                console.log("\n");
-                console.table(res);
-                console.log("\n");
-                init();
-            });
-        });
 }
 
 init();
