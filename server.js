@@ -158,55 +158,64 @@ function addRole() {
 }
 
 function addEmployee() {
-    const questions = [
-        {
-            name: "newFirstName",
-            message: "What is the new employee's first name?",
-            type: "input",
-        },
-        {
-            name: "newLastName",
-            message: "What is the new employee's last name?",
-            type: "input",
-        },
-        {
-            name: "newRole",
-            message: "What is the new employee's role ID number?",
-            type: "number",
-        },
-        {
-            name: "hasManager",
-            message: "Does the new employee have a manager?",
-            type: "confirm",
-        },
-        {
-            name: "newManager",
-            message: "What is the employee ID of the new employee's manager?",
-            type: "number",
-            when: (answers) => answers.hasManager === true,
-        },
-    ];
+    inquirer
+        .prompt([
+            {
+                name: "newFirstName",
+                message: "What is the new employee's first name?",
+                type: "input",
+            },
+            {
+                name: "newLastName",
+                message: "What is the new employee's last name?",
+                type: "input",
+            },
+        ])
+        .then((answers) => {
+            db.query("SELECT * FROM roles", function (err, res) {
+                const roles = res.map(({ id, title }) => ({
+                    name: title,
+                    value: id,
+                }));
+                inquirer
+                    .prompt({
+                        name: "id",
+                        message: "What is the new employee's role?",
+                        type: "list",
+                        choices: roles,
+                    })
+                    .then((role) => {
+                        db.query("SELECT * FROM employee WHERE manager_id IS NULL", function (err, res) {
+                            const managers = res.map(({ id, last_name }) => ({
+                                name: last_name,
+                                value: id,
+                            }));
+                            inquirer
+                                .prompt({
+                                    name: "id",
+                                    message: "Who is the new employee's manager?",
+                                    type: "list",
+                                    choices: managers,
+                                })
+                                .then((manager) => {
+                                    db.query("INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [answers.newFirstName, answers.newLastName, role.id, manager.id], function (err, row) {
+                                        console.log("Successfully added an employee!");
+                                        if (err) throw err;
+                                    });
 
-    inquirer.prompt(questions).then((answers) => {
-        if (answers.hasManager) {
-            db.query("INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [answers.newFirstName, answers.newLastName, answers.newRole, answers.newManager], function (err, row) {
-                console.log("Successfully added an employee!");
+                                    db.query("SELECT * FROM employees", (err, res) => {
+                                        console.log("\n");
+                                        console.table(res);
+                                        console.log("\n");
+                                        init();
+                                    });
+                                });
+                            if (err) throw err;
+                        });
+                    });
                 if (err) throw err;
             });
-        } else {
-            db.query("INSERT INTO employees (first_name, last_name, role_id) VALUES (?, ?, ?)", [answers.newFirstName, answers.newLastName, answers.newRole], function (err, row) {
-                console.log("Successfully added an employee!");
-                if (err) throw err;
-            });
-        }
-
-        db.query("SELECT * FROM employees", (err, res) => {
-            console.log("\n");
-            console.table(res);
-            console.log("\n");
-            init();
         });
-    });
 }
 
 function updateEmployee() {
