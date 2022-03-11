@@ -191,43 +191,63 @@ function addEmployee() {
                 value: id,
             }));
 
-            inquirer
-                .prompt({
+            const askRole = [
+                { name: "askManager", message: "Is this employee a manager?", type: "confirm" },
+                {
                     name: "id",
                     message: "What is the new employee's role?",
                     type: "list",
                     choices: roles,
-                })
-                .then((role) => {
-                    db.query("SELECT * FROM employees WHERE manager_id IS NULL", function (err, res) {
-                        const managers = res.map(({ id, last_name }) => ({
-                            name: last_name,
-                            value: id,
-                        }));
+                },
+            ];
 
-                        inquirer
-                            .prompt({
-                                name: "id",
-                                message: "Who is the new employee's manager?",
-                                type: "list",
-                                choices: managers,
-                            })
-                            .then((manager) => {
-                                db.query("INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [answers.newFirstName, answers.newLastName, role.id, manager.id], function (err, row) {
-                                    console.log("Successfully added an employee!");
-                                    if (err) throw err;
-                                });
+            inquirer.prompt(askRole).then((roleData) => {
+                switch (roleData.askManager) {
+                    case true:
+                        db.query("INSERT INTO employees (first_name, last_name, role_id) VALUES (?, ?, ?)", [answers.newFirstName, answers.newLastName, roleData.id], function (err, row) {
+                            if (err) throw err;
+                            console.log("Successfully added an employee!");
+                        });
 
-                                db.query("SELECT * FROM employees", (err, res) => {
-                                    console.log("\n");
-                                    console.table(res);
-                                    console.log("\n");
-                                    init();
+                        db.query("SELECT * FROM employees", (err, res) => {
+                            console.log("\n");
+                            console.table(res);
+                            console.log("\n");
+                            init();
+                        });
+                        break;
+                    case false:
+                        db.query("SELECT * FROM employees WHERE manager_id IS NULL", function (err, res) {
+                            const managers = res.map(({ id, last_name }) => ({
+                                name: last_name,
+                                value: id,
+                            }));
+
+                            inquirer
+                                .prompt({
+                                    name: "id",
+                                    message: "Who is the new employee's manager?",
+                                    type: "list",
+                                    choices: managers,
+                                })
+                                .then((manager) => {
+                                    db.query("INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", [answers.newFirstName, answers.newLastName, roleData.id, manager.id], function (err, row) {
+                                        if (err) throw err;
+                                        console.log("Successfully added an employee!");
+                                    });
+
+                                    db.query("SELECT * FROM employees", (err, res) => {
+                                        console.log("\n");
+                                        console.table(res);
+                                        console.log("\n");
+                                        init();
+                                    });
                                 });
-                            });
-                        if (err) throw err;
-                    });
-                });
+                            if (err) throw err;
+                        });
+                        break;
+                }
+            });
             if (err) throw err;
         });
     });
