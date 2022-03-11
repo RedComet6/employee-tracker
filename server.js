@@ -111,6 +111,7 @@ function addDepartment() {
 
     inquirer.prompt(question).then((answer) => {
         db.query("INSERT INTO departments (name) VALUES (?)", answer.newDepartment, function (err, row) {
+            if (err) throw err;
             console.log("Successfully added a department!");
         });
 
@@ -254,8 +255,8 @@ function updateEmployee() {
 
     inquirer.prompt(questions).then((answers) => {
         db.query("UPDATE employees SET role_id = ? WHERE id = ?", [answers.updatedRole, answers.updatedEmployee], function (err, row) {
-            console.log("Successfully updated an employee's role!");
             if (err) throw err;
+            console.log("Successfully updated an employee's role!");
         });
 
         db.query("SELECT * FROM employees", (err, res) => {
@@ -284,8 +285,8 @@ function deleteDepartment() {
 
     inquirer.prompt(question).then((answer) => {
         db.query("DELETE FROM departments WHERE id = ?", answer.deletedDepartment, function (err, row) {
-            console.log("Successfully deleted a department!");
             if (err) throw err;
+            console.log("Successfully deleted a department!");
         });
 
         db.query("SELECT * FROM departments", (err, res) => {
@@ -314,8 +315,8 @@ function deleteRole() {
 
     inquirer.prompt(question).then((answer) => {
         db.query("DELETE FROM roles WHERE id = ?", answer.deletedRole, function (err, row) {
-            console.log("Successfully deleted a role!");
             if (err) throw err;
+            console.log("Successfully deleted a role!");
         });
 
         db.query("SELECT * FROM roles", (err, res) => {
@@ -344,8 +345,8 @@ function deleteEmployee() {
 
     inquirer.prompt(question).then((answer) => {
         db.query("DELETE FROM employees WHERE id = ?", answer.deletedEmployee, function (err, row) {
-            console.log("Successfully deleted an employee!");
             if (err) throw err;
+            console.log("Successfully deleted an employee!");
         });
 
         db.query("SELECT * FROM employees", (err, res) => {
